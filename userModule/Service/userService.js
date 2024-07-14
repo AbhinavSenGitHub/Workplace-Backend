@@ -5,11 +5,14 @@ const constant = require("../../constant/constant");
 module.exports = {
     addUser: async (obj) => {
         const newUser = new User(obj);
-        return await newUser.save().then(() => {
+        try {
+            await newUser.save();
+            console.log("user:", newUser);
             return newUser;
-        }).catch((error) => {
-            console.log("error saving user")
-        })
+        } catch (error) {
+            console.log("error saving user:", error);
+            throw new Error('Error saving user');
+        }
     },
 
     loginUser: async (email, password) => {

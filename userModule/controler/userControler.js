@@ -4,19 +4,26 @@ const { addUser } = require("../Service/userService")
 
 module.exports = {
     addUser: async (req, res) => {
+       
         const userData = {
             username: req.body.username,
             email: req.body.email,
             password: req.body.password
         }
-        const response = await userService.addUser(userData)
-        if (response) {
+        console.log("inside the server: ", userData)
+        try {
+            const response = await userService.addUser(userData);
             res.status(200).send({
-                message: "ho gaya bhai save tere user",
-                data: true
-            })
-        } else {
-            console.log("saved failed")
+                message: "User is saved successfully",
+                data: response, // You can send the saved user object back if needed
+            });
+        } catch (error) {
+            console.log("Error while saving user:", error.message);
+            res.status(500).send({
+                message: "Error while saving this user",
+                data: false,
+                error: error.message,
+            });
         }
     },
 
@@ -30,7 +37,7 @@ module.exports = {
                     data: response,
                     success: 1
                 })
-            }else{
+            } else {
                 res.status(constant.UNAUTHORIZED).send({
                     message: "User with the email or password not found",
                     success: 0
