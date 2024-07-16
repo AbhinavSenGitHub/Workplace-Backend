@@ -10,6 +10,8 @@ module.exports = {
             email: req.body.email,
             password: req.body.password
         }
+// new commit 
+        
         console.log("inside the server: ", userData)
         try {
             const response = await userService.addUser(userData);
