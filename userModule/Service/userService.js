@@ -8,42 +8,38 @@ const key = require("../../config/keys")
 
 module.exports = {
     addUser: async (obj) => {
+        try {
+            const userExists = await User.findOne({ email: obj.email })
+            if (userExists) {
+                console.log("User already exists")
+                return { success: false, message: "User already exists" }
+            } else {
+                const newUser = new User(obj)
+                console.log("New user: " + newUser.email)
+                const salt = await bcrypt.genSalt(10);
+                const hash = await bcrypt.hash(newUser.password, salt)
+                newUser.password = hash
+                await newUser.save()
 
-        const userExists = await User.findOne({ email: obj.email })
-        if (userExists) {
-            console.log("User already exists")
-        } else {
-            const newUser = new User(obj);
-            console.log("New user: " + newUser.email)
-            try {
-
-                bcrypt.genSalt(10, (err, salt) => {
-                    bcrypt.hash(newUser.password, salt, (err, hash) => {
-                        if (err) throw err;
-                        newUser.password = hash;
-                        newUser.save()
-                            .then(user => res.json(user))
-                            .catch(err => console.log(err));
-                    });
-                });
-
-            } catch (error) {
-                console.log("error saving user:", error);
-                throw new Error('Error saving user');
+                // setting token
+                const token = newUser.generateJwt()
+                return token
             }
+        } catch (error) {
+            console.log("Error while adding the user: ", error)
         }
+
     },
 
     loginUser: async (email, password) => {
         try {
-            const userFound = await User.findOne({ email: email, password: password })
-            if (!userFound) {
-                return null
-            } else {
-                return userFound
+            const userExists = await User.findOne({ email: email })
+
+            if (!userExists || !(await userExists.validPassword(password))){
+                return {success: false, message: "User does not exist"}
             }
         } catch (error) {
-            return error
+            console.log("Error while adding the user: ", error)
         }
     }
 }

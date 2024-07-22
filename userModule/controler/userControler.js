@@ -4,31 +4,34 @@ const { addUser } = require("../Service/userService")
 
 module.exports = {
     addUser: async (req, res) => {
-       
         const userData = {
             username: req.body.username,
             email: req.body.email,
             password: req.body.password
         }
 // new commit 
-        
+
         console.log("inside the server: ", userData)
         try {
             const response = await userService.addUser(userData);
-            res.status(200).send({
-                message: "User is saved successfully",
-                data: response, // You can send the saved user object back if needed
-            });
+            console.log("response: ", response)
+            if(response.success){
+                res.status(200).send({
+                    message: "User is saved successfully",
+                    data: response, // You can send the saved user object back if needed
+                });
+            }
+            
         } catch (error) {
             console.log("Error while saving user:", error.message);
             res.status(500).send({
                 message: "Error while saving this user",
-                data: false,
+                data: false,    
                 error: error.message,
             });
         }
     },
-
+    
     loginUser: async (req, res) => {
         try {
             const { email, password } = req.body
